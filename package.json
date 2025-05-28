@@ -1,0 +1,49 @@
+{
+  "name": "raas",
+  "version": "1.0.0",
+  "description": "Recruitment as a Service Platform",
+  "license": "ISC",
+  "author": "",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "docker:dev": "./scripts/docker-dev.sh start",
+    "docker:dev:stop": "./scripts/docker-dev.sh stop",
+    "docker:dev:restart": "./scripts/docker-dev.sh restart",
+    "docker:dev:logs": "./scripts/docker-dev.sh logs",
+    "docker:dev:clean": "./scripts/docker-dev.sh clean",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:prod:stop": "docker-compose -f docker-compose.prod.yml down",
+    "docker:prod:logs": "docker-compose -f docker-compose.prod.yml logs -f",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "config:setup": "./scripts/config.sh setup",
+    "config:check": "./scripts/config.sh check",
+    "config:validate": "./scripts/config.sh validate",
+    "config:secrets": "./scripts/config.sh generate-secrets",
+    "backup": "./scripts/backup.sh backup",
+    "backup:db": "./scripts/backup.sh backup-db",
+    "backup:list": "./scripts/backup.sh list",
+    "backup:cleanup": "./scripts/backup.sh cleanup",
+    "migrate": "./scripts/migrate.sh migrate",
+    "migrate:status": "./scripts/migrate.sh status",
+    "migrate:create": "./scripts/migrate.sh create",
+    "migrate:rollback": "./scripts/migrate.sh rollback",
+    "migrate:fresh": "./scripts/migrate.sh fresh",
+    "migrate:seed": "./scripts/migrate.sh seed",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
