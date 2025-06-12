@@ -37,21 +37,32 @@ cd ..
 echo "Building backend..."
 cd backend
 npm run build || {
-    echo "Backend build failed, attempting to run in development mode..."
+    echo "Backend build failed, will run in development mode..."
     export BUILD_FAILED=true
 }
 cd ..
 
-# Build frontend
-echo "Building frontend..."
-cd frontend && npm run build || handle_error "Frontend build had issues"
-cd ..
+# Build frontend (only if not in dev mode)
+if [ "$BUILD_FAILED" != "true" ]; then
+    echo "Building frontend..."
+    cd frontend 
+    npm run build || {
+        echo "Frontend build failed, will run in development mode..."
+        export BUILD_FAILED=true
+    }
+    cd ..
+fi
 
 # Start services
 echo "Starting services..."
 if [ "$BUILD_FAILED" = "true" ]; then
     echo "Running in development mode due to build issues..."
-    npx concurrently "cd backend && npm run dev" "cd frontend && npm start"
+    npx concurrently \
+        "cd backend && npm run dev" \
+        "cd frontend && npm run dev"
 else
-    npx concurrently "cd backend && npm start" "cd frontend && npm start"
+    echo "Running in production mode..."
+    npx concurrently \
+        "cd backend && npm start" \
+        "cd frontend && npm start"
 fi
