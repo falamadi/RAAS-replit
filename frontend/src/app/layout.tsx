@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+// import "./globals.css"; // Temporarily commented out
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} style={{margin: 0, padding: 0, fontFamily: 'system-ui, sans-serif'}}>
         <ErrorBoundary>
           <Providers>
             {children}
