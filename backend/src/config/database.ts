@@ -1,46 +1,31 @@
-import { Pool } from 'pg';
-import { logger } from '../utils/logger';
+import { connectDatabase as connectSQLite, getDb, closeDatabase as closeSQLite, toSQLite } from './database-sqlite';
+export { toSQLite } from './database-sqlite';
 
-let pool: Pool;
+// Wrapper to maintain compatibility with existing code
+export const connectDatabase = connectSQLite;
+export const closeDatabase = closeSQLite;
 
-export async function connectDatabase(): Promise<void> {
-  try {
-    const poolConfig: any = {
-      connectionString: process.env.DATABASE_URL,
-      max: parseInt(process.env.DATABASE_POOL_SIZE || '20'),
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    };
-
-    // Add SSL configuration for production (Supabase)
-    if (process.env.NODE_ENV === 'production') {
-      poolConfig.ssl = {
-        rejectUnauthorized: false
-      };
-      poolConfig.max = 5; // Reduce pool size for free tier
-    }
-
-    pool = new Pool(poolConfig);
-
-    // Test the connection
-    await pool.query('SELECT NOW()');
-    logger.info('Database connection established');
-  } catch (error) {
-    logger.error('Database connection failed:', error);
-    throw error;
-  }
-}
-
-export function getPool(): Pool {
-  if (!pool) {
-    throw new Error('Database not initialized. Call connectDatabase() first.');
-  }
-  return pool;
-}
-
-export async function closeDatabase(): Promise<void> {
-  if (pool) {
-    await pool.end();
-    logger.info('Database connection closed');
-  }
+// Adapter to make SQLite work with existing Pool-based code
+export function getPool() {
+  const db = getDb();
+  
+  // Create a mock pool object that adapts SQLite to Pool interface
+  return {
+    query: async (text: string, params?: any[]) => {
+      const sqliteQuery = toSQLite(text);
+      
+      if (sqliteQuery.toUpperCase().startsWith('SELECT')) {
+        const rows = await db.all(sqliteQuery, params);
+        return { rows, rowCount: rows.length };
+      } else {
+        const result = await db.run(sqliteQuery, params);
+        return { 
+          rows: [], 
+          rowCount: result.changes || 0,
+          lastID: result.lastID 
+        };
+      }
+    },
+    end: closeSQLite
+  };
 }

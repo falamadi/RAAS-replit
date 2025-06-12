@@ -15,6 +15,8 @@ yarn-error.log*
 dist/
 build/
 *.js.map
+.next/
+out/
 
 # Logs
 logs/
@@ -35,11 +37,16 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Docker volumes
-postgres_data/
-redis_data/
-elasticsearch_data/
-pgadmin_data/
+# Database
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# Replit specific
+.replit_history
+.config/
+.upm/
 
 # Temporary files
 tmp/

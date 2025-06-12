@@ -1,0 +1,66 @@
+# Code Quality Checks
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend  
+      run: npm ci
+
+    - name: Run backend linting
+      working-directory: ./backend
+      run: npm run lint
+
+    - name: Run frontend linting
+      working-directory: ./frontend
+      run: npm run lint
+
+    - name: Check backend formatting
+      working-directory: ./backend
+      run: npm run format:check
+
+    - name: Check frontend formatting
+      working-directory: ./frontend
+      run: npm run format:check
+
+    - name: Run backend type checking
+      working-directory: ./backend
+      run: npm run typecheck
+
+    - name: Run frontend type checking
+      working-directory: ./frontend
+      run: npm run typecheck
+
+    - name: Check for secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+
+    - name: Run dependency audit
+      run: |
+        cd backend && npm audit --audit-level=high
+        cd ../frontend && npm audit --audit-level=high
