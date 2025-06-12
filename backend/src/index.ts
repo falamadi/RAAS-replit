@@ -27,7 +27,7 @@ dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Initialize Socket.IO
 new SocketService(server);
@@ -107,7 +107,7 @@ async function startServer(): Promise<void> {
       CronJobManager.start();
     }
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       logger.info(`RaaS Backend Server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV}`);
       logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
